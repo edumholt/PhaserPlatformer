@@ -1,10 +1,11 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create: create, update: update});
 
 var platforms,
+    player,
     score = 0,
     numStars = 12,
-    playerHealth = 3,
-    healthText,
+    playerLives = 3,
+    livesText,
     scoreText;
 
 function preload() {
@@ -14,6 +15,7 @@ function preload() {
     game.load.image('star', 'assets/star.png');
     game.load.audio('collectStar', 'assets/collect_star.mp3');
     game.load.audio('boing', 'assets/boing.mp3');
+    game.load.audio('ugh', 'assets/ugh.mp3');
     game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
     game.load.spritesheet('baddie', 'assets/baddie.png', 32, 32);
 
@@ -61,7 +63,7 @@ function create() {
     player.body.collideWorldBounds = true;
 
     // Define two animations for our dude
-    //      walking left and walking right
+    // walking left and walking right
     //
     // They should run at 10 frames per second
     // and they should loop.
@@ -106,13 +108,19 @@ function create() {
 
     }
 
+
     // Add audio sounds
     collectStarSound = game.add.audio('collectStar');
     deadSound = game.add.audio('boing');
+    ughSound = game.add.audio('ugh');
 
     // Set up  and display our score text
     scoreText = game.add.text(16, 16, 'SCORE: 0', {fontSize: '32px',
                                                                 fill: '#000'});
+
+    // Set up and display our health text
+    livesText = game.add.text(600, 16, 'LIVES: 3', {fontSize: '32px',
+                                                                  fill: '#000'});
 
     // Set up our game controls
     // Phaser has a builtin keyboard manager and one of its benefits
@@ -133,12 +141,16 @@ function update() {
     game.physics.arcade.collide(player, platforms);
     game.physics.arcade.collide(stars, platforms);
     game.physics.arcade.collide(baddie, platforms);
+    game.physics.arcade.collide(player, baddie, checkLives);
+
 
     // Check for overlap between player and any star in the stars group
     // If any overlap is detected, pass them to a callback function
     game.physics.arcade.overlap(player, stars, collectStar, null, this);
 
+    if(player.alive) {
     // Reset the player's velocity
+
     player.body.velocity.x = 0;
 
     // Movement
@@ -163,6 +175,7 @@ function update() {
     if(cursors.up.isDown && player.body.touching.down) {
       player.body.velocity.y = -350;
     }
+    }
 
     //Baddie movement back and forth
     if(baddie.body.velocity.x < 0) {
@@ -170,10 +183,6 @@ function update() {
     } else {
       baddie.animations.play('right');
     }
-
-    // Baddie collision with player
-    game.physics.arcade.overlap(player, baddie, killPlayer, null, this);
-
 
 }
 
@@ -188,11 +197,22 @@ function collectStar(player, star) {
 
 }
 
+function checkLives(player) {
+  if(playerLives > 1) {
+    ughSound.play();
+    playerLives--;
+    livesText.text = 'LIVES: ' + playerLives;
+  } else {
+    killPlayer(player);
+  }
+}
+
 function killPlayer(player) {
 
   // Player dies
-  player.destroy();
+  player.alive = false;
+  player.destroy(player);
   deadSound.play();
-  scoreText.text = 'YOU LOSE!!';
+  livesText.text = 'YOU LOSE!!';
 
 }
