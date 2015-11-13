@@ -1,7 +1,6 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create: create, update: update});
 
 var platforms,
-    baddies,
     score = 0,
     numStars = 12,
     scoreText;
@@ -12,7 +11,7 @@ function preload() {
     game.load.image('ground', 'assets/platform.png');
     game.load.image('star', 'assets/star.png');
     game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
-    game.load.spritesheet('baddie', 'assets/baddie', 32, 32);
+    game.load.spritesheet('baddie', 'assets/baddie.png', 32, 32);
 
 }
 
@@ -65,6 +64,21 @@ function create() {
     player.animations.add('left', [0, 1, 2, 3], 10, true);
     player.animations.add('right', [5, 6, 7, 8], 10, true);
 
+    // Create baddie
+    baddie = game.add.sprite(game.world.width/2 - 80, 0, 'baddie')
+    game.physics.arcade.enable(baddie);
+
+    baddie.body.gravity.y = 500;
+    baddie.body.bounce.y = 0.08;
+    baddie.body.bounce.x = 1;
+    baddie.body.collideWorldBounds = true;
+
+    baddie.animations.add('left', [0, 1], 4, true);
+    baddie.animations.add('right', [2, 3], 4, true);
+
+    baddie.body.velocity.x = -50;
+    baddie.animations.play('left');
+
     //
     // Drop a sprinkling of stars into the scene and allow
     // the player to collect them.
@@ -107,10 +121,10 @@ function create() {
 // Game loop
 function update() {
 
-    // Set up collision detection between player and stars, as well as payer and ground
+    // Set up collision detection
     game.physics.arcade.collide(player, platforms);
     game.physics.arcade.collide(stars, platforms);
-    // game.physics.arcade.collide(player, stars);
+    game.physics.arcade.collide(baddie, platforms);
 
     // Check for overlap between player and any star in the stars group
     // If any overlap is detected, pass them to a callback function
@@ -128,7 +142,7 @@ function update() {
 
     } else if(cursors.right.isDown) {
 
-          // Move right
+      // Move right
       player.body.velocity.x = 150;
       player.animations.play('right');
 
@@ -142,6 +156,17 @@ function update() {
       player.body.velocity.y = -350;
     }
 
+    //Baddie movement back and forth
+    if(baddie.body.velocity.x < 0) {
+      baddie.animations.play('left');
+    } else {
+      baddie.animations.play('right');
+    }
+
+    // Baddie collision with player
+    game.physics.arcade.overlap(player, baddie, killPlayer, null, this);
+
+
 }
 
 function collectStar(player, star) {
@@ -151,5 +176,13 @@ function collectStar(player, star) {
 
   score += 10;
   scoreText.text = 'SCORE: ' + score;
+
+}
+
+function killPlayer(player) {
+
+  // Player dies
+  player.destroy();
+  scoreText.text = 'YOU LOSE!!';
 
 }
