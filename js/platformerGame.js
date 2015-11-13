@@ -3,6 +3,8 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create:
 var platforms,
     score = 0,
     numStars = 12,
+    playerHealth = 3,
+    healthText,
     scoreText;
 
 function preload() {
@@ -10,6 +12,8 @@ function preload() {
     game.load.image('sky', 'assets/sky.png');
     game.load.image('ground', 'assets/platform.png');
     game.load.image('star', 'assets/star.png');
+    game.load.audio('collectStar', 'assets/collect_star.mp3');
+    game.load.audio('boing', 'assets/boing.mp3');
     game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
     game.load.spritesheet('baddie', 'assets/baddie.png', 32, 32);
 
@@ -102,6 +106,10 @@ function create() {
 
     }
 
+    // Add audio sounds
+    collectStarSound = game.add.audio('collectStar');
+    deadSound = game.add.audio('boing');
+
     // Set up  and display our score text
     scoreText = game.add.text(16, 16, 'SCORE: 0', {fontSize: '32px',
                                                                 fill: '#000'});
@@ -173,6 +181,7 @@ function collectStar(player, star) {
 
   // update score and remove star
   star.destroy();
+  collectStarSound.play();
 
   score += 10;
   scoreText.text = 'SCORE: ' + score;
@@ -183,6 +192,7 @@ function killPlayer(player) {
 
   // Player dies
   player.destroy();
+  deadSound.play();
   scoreText.text = 'YOU LOSE!!';
 
 }
