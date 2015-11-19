@@ -6,7 +6,8 @@ var platforms,
     numStars = 12,
     playerLives = 3,
     livesText,
-    scoreText;
+    scoreText,
+    explosion;
 
 function preload() {
 
@@ -14,10 +15,11 @@ function preload() {
     game.load.image('ground', 'assets/platform.png');
     game.load.image('star', 'assets/star.png');
     game.load.audio('collectStar', 'assets/collect_star.mp3');
-    game.load.audio('boing', 'assets/boing.mp3');
+    game.load.audio('explode', 'assets/explode.mp3');
     game.load.audio('ugh', 'assets/ugh.mp3');
     game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
     game.load.spritesheet('baddie', 'assets/baddie.png', 32, 32);
+    game.load.atlas('explosion', 'assets/explosion.png', 'assets/explosion.json')
 
 }
 
@@ -111,7 +113,7 @@ function create() {
 
     // Add audio sounds
     collectStarSound = game.add.audio('collectStar');
-    deadSound = game.add.audio('boing');
+    deadSound = game.add.audio('explode');
     ughSound = game.add.audio('ugh');
 
     // Set up  and display our score text
@@ -186,6 +188,7 @@ function update() {
 
 }
 
+
 function collectStar(player, star) {
 
   // update score and remove star
@@ -197,14 +200,32 @@ function collectStar(player, star) {
 
 }
 
-function checkLives(player) {
+function checkLives(player, baddie) {
   if(playerLives > 1) {
     ughSound.play();
     playerLives--;
     livesText.text = 'LIVES: ' + playerLives;
+    resetPlayer(player);
+    switchDirection(baddie);
   } else {
     killPlayer(player);
   }
+}
+
+function switchDirection(baddie) {
+  if(baddie.body.velocity.x > 0) {
+    baddie.body.velocity.x = -50;
+  } else {
+    baddie.body.velocity.x = 50;
+  }
+}
+
+function resetPlayer(player) {
+
+  player.x = 32;
+  player.y = 150;
+
+
 }
 
 function killPlayer(player) {
@@ -212,6 +233,10 @@ function killPlayer(player) {
   // Player dies
   player.alive = false;
   player.destroy(player);
+  baddie.body.velocity.setTo(0, 0);
+  explosion = game.add.sprite(player.x, player.y, 'explosion', 'explosion_1.png');
+  explosion.animations.add('explode', ['explosion_1.png', 'explosion_2.png', 'explosion_3.png', 'explosion_4.png', 'explosion_5.png', 'explosion_6.png', 'explosion_7.png', 'explosion_8.png', 'explosion_9.png', 'explosion_10.png', 'explosion_11.png', 'explosion_12.png', 'explosion_13.png', 'explosion_14.png', 'explosion_15.png', 'explosion_16.png', 'explosion_17.png', 'explosion_18.png', 'explosion_19.png', 'explosion_20.png', 'explosion_21.png', 'explosion_22.png', 'explosion_23.png', 'explosion_24.png', 'explosion_25.png'], 30);
+  explosion.animations.play('explode');
   deadSound.play();
   livesText.text = 'YOU LOSE!!';
 
