@@ -72,20 +72,7 @@ function create() {
     player.animations.add('left', [0, 1, 2, 3], 10, true);
     player.animations.add('right', [5, 6, 7, 8], 10, true);
 
-    // Create baddie
-    baddie = game.add.sprite(game.world.width/2 - 80, 0, 'baddie')
-    game.physics.arcade.enable(baddie);
-
-    baddie.body.gravity.y = 500;
-    baddie.body.bounce.y = 0.08;
-    baddie.body.bounce.x = 1;
-    baddie.body.collideWorldBounds = true;
-
-    baddie.animations.add('left', [0, 1], 4, true);
-    baddie.animations.add('right', [2, 3], 4, true);
-
-    baddie.body.velocity.x = -50;
-    baddie.animations.play('left');
+    launchBaddie();
 
     //
     // Drop a sprinkling of stars into the scene and allow
@@ -110,8 +97,7 @@ function create() {
 
     }
 
-
-    // Add audio sounds
+    // Add audio
     collectStarSound = game.add.audio('collectStar');
     deadSound = game.add.audio('explode');
     ughSound = game.add.audio('ugh');
@@ -188,6 +174,24 @@ function update() {
 
 }
 
+function launchBaddie() {
+
+      // Create baddie
+    baddie = game.add.sprite(game.world.width/2 - 80, 0, 'baddie')
+    game.physics.arcade.enable(baddie);
+
+    baddie.body.gravity.y = 500;
+    baddie.body.bounce.y = 0.08;
+    baddie.body.bounce.x = 1;
+    baddie.body.collideWorldBounds = true;
+
+    baddie.animations.add('left', [0, 1], 4, true);
+    baddie.animations.add('right', [2, 3], 4, true);
+
+    baddie.body.velocity.x = -50;
+    baddie.animations.play('left');
+
+}
 
 function collectStar(player, star) {
 
