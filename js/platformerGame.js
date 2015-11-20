@@ -2,7 +2,7 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create:
 
 var platforms,
     player,
-    baddie,
+    baddies,
     diamonds,
     score = 0,
     level = 1,
@@ -10,7 +10,9 @@ var platforms,
     playerLives = 3,
     livesText,
     scoreText,
-    explosion;
+    explosion,
+    baddieVelocity = 50,
+    baddieGravity = 5000;
 
 function preload() {
 
@@ -22,12 +24,12 @@ function preload() {
     game.load.audio('explode', 'assets/explode.mp3');
     game.load.audio('ugh', 'assets/ugh.mp3');
     game.load.audio('bell', 'assets/bell.mp3');
+    game.load.audio('bugle', 'assets/bugle.mp3');
     game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
     game.load.spritesheet('baddie', 'assets/baddie.png', 32, 32);
     game.load.atlas('explosion', 'assets/explosion.png', 'assets/explosion.json')
 
 }
-
 
 function create() {
 
@@ -75,6 +77,9 @@ function create() {
     player.animations.add('left', [0, 1, 2, 3], 10, true);
     player.animations.add('right', [5, 6, 7, 8], 10, true);
 
+    baddies = game.add.group();
+    baddies.enableBody = true;
+
     // Create baddie
     launchBaddie();
 
@@ -96,6 +101,7 @@ function create() {
     deadSound = game.add.audio('explode');
     ughSound = game.add.audio('ugh');
     bellSound = game.add.audio('bell');
+    bugleSound = game.add.audio('bugle');
 
     // Set up  and display our score text
     scoreText = game.add.text(16, 16, 'SCORE: 0', {fontSize: '32px',
@@ -118,7 +124,6 @@ function create() {
 
 }
 
-// Game loop
 function update() {
 
     // Set up collision detection
@@ -132,7 +137,10 @@ function update() {
     // If any overlap is detected, pass them to a callback function
     game.physics.arcade.overlap(player, stars, collectStar, null, this);
 
-    game.physics.arcade.moveToObject(baddie, player, 50);
+    // Likewise for diamond
+    game.physics.arcade.overlap(player, diamonds, collectDiamond, null, this);
+
+    game.physics.arcade.moveToObject(baddie, player, baddieVelocity);
 
     if(player.alive) {
 
@@ -183,10 +191,10 @@ function update() {
 function launchBaddie() {
 
     // Create baddie
-    baddie = game.add.sprite(game.world.width/2 - 80, 0, 'baddie')
+    baddie = game.add.sprite(game.world.width/2 - 200, 0, 'baddie')
     game.physics.arcade.enable(baddie);
 
-    baddie.body.gravity.y = 5000;
+    baddie.body.gravity.y = baddieGravity;
     baddie.body.bounce.y = 0.08;
     baddie.body.bounce.x = 1;
     baddie.body.collideWorldBounds = true;
@@ -234,8 +242,22 @@ function collectStar(player, star) {
     level++;
     levelText.text = 'LEVEL: ' + level;
     createStars();
+    baddie.destroy();
+    baddieVelocity += 20;
+    baddieGravity += 1500;
+    launchBaddie();
 
   }
+
+}
+
+function collectDiamond(player, diamond) {
+
+  diamond.destroy();
+  bugleSound.play();
+
+  playerLives++;
+  livesText.text = 'LIVES: ' + playerLives;
 
 }
 
@@ -267,6 +289,6 @@ function killPlayer(player) {
   explosion.animations.add('explode', ['explosion_1.png', 'explosion_2.png', 'explosion_3.png', 'explosion_4.png', 'explosion_5.png', 'explosion_6.png', 'explosion_7.png', 'explosion_8.png', 'explosion_9.png', 'explosion_10.png', 'explosion_11.png', 'explosion_12.png', 'explosion_13.png', 'explosion_14.png', 'explosion_15.png', 'explosion_16.png', 'explosion_17.png', 'explosion_18.png', 'explosion_19.png', 'explosion_20.png', 'explosion_21.png', 'explosion_22.png', 'explosion_23.png', 'explosion_24.png', 'explosion_25.png'], 30);
   explosion.animations.play('explode');
   deadSound.play();
-  livesText.text = 'YOU LOSE!!';
+  livesText.text = 'GAME OVER';
 
 }
