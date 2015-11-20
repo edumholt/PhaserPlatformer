@@ -39,13 +39,9 @@ function create() {
     game.add.sprite(0, 0, 'sky');
 
     platforms = game.add.group();
-
-    // enable physics body on every member of the group
     platforms.enableBody = true;
 
     var ground = platforms.create(0, game.world.height - 64, 'ground');
-
-    // Scale the ground to fit the width of the game
     ground.scale.setTo(2, 2);
 
     // Make sure the ground does not fall away when you jump on it.
@@ -56,24 +52,19 @@ function create() {
     var ledge = platforms.create(400, 400, 'ground');
 
     ledge.body.immovable = true;
-
     ledge = platforms.create(-150, 250, 'ground');
     ledge.body.immovable = true;
 
     // The player and its settings
-    //
     player = game.add.sprite(32, game.world.height -150, 'dude');
 
     // Enable physics on the player
     game.physics.arcade.enable(player);
-
     player.body.bounce.y = 0.2;
     player.body.gravity.y = 300;
     player.body.collideWorldBounds = true;
 
-    // Define two animations for our dude walking left and walking right
-    //
-    // They should run at 10 frames per second and they should loop.
+    // Define two animations for our dude walking left and right
     player.animations.add('left', [0, 1, 2, 3], 10, true);
     player.animations.add('right', [5, 6, 7, 8], 10, true);
 
@@ -83,13 +74,9 @@ function create() {
     // Create baddie
     launchBaddie();
 
-    // Drop a sprinkling of stars into the scene and allow
-    // the player to collect them.
-    //
+    // Drop a sprinkling of stars into the scene and allow the player to collect them.
     stars = game.add.group();
-
     stars.enableBody = true;
-
     createStars();
 
     // Add diamonds group
@@ -103,23 +90,19 @@ function create() {
     bellSound = game.add.audio('bell');
     bugleSound = game.add.audio('bugle');
 
-    // Set up  and display our score text
+    // Score text
     scoreText = game.add.text(16, 16, 'SCORE: 0', {fontSize: '32px',
                                                                 fill: '#000'});
 
-    // Set up and display our health text
+    // Health text
     livesText = game.add.text(600, 16, 'LIVES: 3', {fontSize: '32px',
                                                                   fill: '#000'});
 
-    levelText = game.add.text(320, 16, 'LEVEL: 1', {fontSize: '32px',
+    // Level text
+    levelText = game.add.text(330, 16, 'LEVEL: 1', {fontSize: '32px',
                                                                     fill: '#F00'})
 
     // Set up our game controls
-    // Phaser has a builtin keyboard manager and one of its benefits is the createCursorKeys method
-    // This populates the cursors boject with four properties: up, down, left, right. These properties
-    // are instances of Phaser.Key
-    //
-    // All we need to do after using this, is poll these in our update loop
     cursors = game.input.keyboard.createCursorKeys();
 
 }
@@ -171,19 +154,18 @@ function update() {
       }
     }
 
-    //Baddie animation back and forth
+    //Baddie animation left and right
     if(baddie.body.velocity.x < 0) {
       baddie.animations.play('left');
     } else {
       baddie.animations.play('right');
     }
 
+    // Drop diamonds at random intervals approx. every 33 seconds
     if(Math.random() < .0005 ) {
-
       var diamond = diamonds.create((Math.random() * 700) + 50, 0, 'diamond');
-      diamond.body.gravity.y = 12;
+      diamond.body.gravity.y = 10;
       diamond.body.collideWorldBounds = true;
-
     }
 
 }
@@ -206,22 +188,16 @@ function launchBaddie() {
 
 function createStars() {
 
-      // Create numStars stars spaced evenly apart
+    // Create numStars stars spaced evenly apart
     for (var i = 0; i < numStars; i++) {
 
-        // Create a star sprite and add to the stars group
-        // spacing each star 70px apart.
+        // Create a star sprite and add to the stars group spacing each star 70px apart.
         var star = stars.create(i * 70, 0, 'star');
-
-        // Let gravity do its thing
         star.body.gravity.y = 6;
 
         // Give each star a slightly random bounch between .7 and .9
         star.body.bounce.y = Math.random() * 0.2 + 0.7;
-
     }
-
-
 }
 
 function collectStar(player, star) {
@@ -242,6 +218,8 @@ function collectStar(player, star) {
     level++;
     levelText.text = 'LEVEL: ' + level;
     createStars();
+
+    // Recreate baddie and increase his speed and gravity
     baddie.destroy();
     baddieVelocity += 20;
     baddieGravity += 1500;
@@ -273,10 +251,8 @@ function checkLives(player) {
 }
 
 function resetPlayer(player) {
-
   player.x = 32;
   player.y = 150;
-
 }
 
 function killPlayer(player) {
