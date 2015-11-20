@@ -20,6 +20,7 @@ function preload() {
     game.load.audio('collectStar', 'assets/collect_star.mp3');
     game.load.audio('explode', 'assets/explode.mp3');
     game.load.audio('ugh', 'assets/ugh.mp3');
+    game.load.audio('bell', 'assets/bell.mp3');
     game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
     game.load.spritesheet('baddie', 'assets/baddie.png', 32, 32);
     game.load.atlas('explosion', 'assets/explosion.png', 'assets/explosion.json')
@@ -83,20 +84,7 @@ function create() {
 
     stars.enableBody = true;
 
-    // Create numStars stars spaced evenly apart
-    for (var i = 0; i < numStars; i++) {
-
-        // Create a star sprite and add to the stars group
-        // spacing each star 70px apart.
-        var star = stars.create(i * 70, 0, 'star');
-
-        // Let gravity do its thing
-        star.body.gravity.y = 6;
-
-        // Give each star a slightly random bounch between .7 and .9
-        star.body.bounce.y = Math.random() * 0.2 + 0.7;
-
-    }
+    createStars();
 
     // Add diamonds group
     diamonds = game.add.group();
@@ -106,6 +94,7 @@ function create() {
     collectStarSound = game.add.audio('collectStar');
     deadSound = game.add.audio('explode');
     ughSound = game.add.audio('ugh');
+    bellSound = game.add.audio('bell');
 
     // Set up  and display our score text
     scoreText = game.add.text(16, 16, 'SCORE: 0', {fontSize: '32px',
@@ -203,14 +192,44 @@ function launchBaddie() {
 
 }
 
+function createStars() {
+
+      // Create numStars stars spaced evenly apart
+    for (var i = 0; i < numStars; i++) {
+
+        // Create a star sprite and add to the stars group
+        // spacing each star 70px apart.
+        var star = stars.create(i * 70, 0, 'star');
+
+        // Let gravity do its thing
+        star.body.gravity.y = 6;
+
+        // Give each star a slightly random bounch between .7 and .9
+        star.body.bounce.y = Math.random() * 0.2 + 0.7;
+
+    }
+
+
+}
+
 function collectStar(player, star) {
 
   // update score and remove star
-  star.destroy();
+  star.kill();
   collectStarSound.play();
 
   score += 10;
   scoreText.text = 'SCORE: ' + score;
+
+  // Check for remaining stars
+  if(!stars.countLiving()) {
+
+    bellSound.play();
+    score += 500;
+    scoreText.text = 'SCORE: ' + score;
+    createStars();
+
+  }
 
 }
 
