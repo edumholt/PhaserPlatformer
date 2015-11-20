@@ -5,6 +5,7 @@ var platforms,
     baddie,
     diamonds,
     score = 0,
+    level = 1,
     numStars = 12,
     playerLives = 3,
     livesText,
@@ -103,6 +104,9 @@ function create() {
     // Set up and display our health text
     livesText = game.add.text(600, 16, 'LIVES: 3', {fontSize: '32px',
                                                                   fill: '#000'});
+
+    levelText = game.add.text(320, 16, 'LEVEL: 1', {fontSize: '32px',
+                                                                    fill: '#F00'})
 
     // Set up our game controls
     // Phaser has a builtin keyboard manager and one of its benefits is the createCursorKeys method
@@ -227,6 +231,8 @@ function collectStar(player, star) {
     bellSound.play();
     score += 500;
     scoreText.text = 'SCORE: ' + score;
+    level++;
+    levelText.text = 'LEVEL: ' + level;
     createStars();
 
   }
