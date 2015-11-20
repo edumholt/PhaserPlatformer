@@ -131,41 +131,42 @@ function update() {
     game.physics.arcade.collide(baddie, platforms);
     game.physics.arcade.collide(player, baddie, checkLives);
 
-
     // Check for overlap between player and any star in the stars group
     // If any overlap is detected, pass them to a callback function
     game.physics.arcade.overlap(player, stars, collectStar, null, this);
 
+    game.physics.arcade.moveToObject(baddie, player, 50);
+
     if(player.alive) {
-    // Reset the player's velocity
 
-    player.body.velocity.x = 0;
+      // Reset the player's velocity
+      player.body.velocity.x = 0;
 
-    // Movement
-    if(cursors.left.isDown) {
+      // Movement
+      if(cursors.left.isDown) {
 
-      // Move left
-      player.body.velocity.x = -150;
-      player.animations.play('left');
+        // Move left
+        player.body.velocity.x = -150;
+        player.animations.play('left');
 
-    } else if(cursors.right.isDown) {
+      } else if(cursors.right.isDown) {
 
-      // Move right
-      player.body.velocity.x = 150;
-      player.animations.play('right');
+        // Move right
+        player.body.velocity.x = 150;
+        player.animations.play('right');
 
-    } else {
-      player.animations.stop();
-      player.frame = 4;
+      } else {
+        player.animations.stop();
+        player.frame = 4;
+      }
+
+      // Allow the player to jump if they are touching the ground
+      if(cursors.up.isDown && player.body.touching.down) {
+        player.body.velocity.y = -350;
+      }
     }
 
-    // Allow the player to jump if they are touching the ground
-    if(cursors.up.isDown && player.body.touching.down) {
-      player.body.velocity.y = -350;
-    }
-    }
-
-    //Baddie movement back and forth
+    //Baddie animation back and forth
     if(baddie.body.velocity.x < 0) {
       baddie.animations.play('left');
     } else {
@@ -176,20 +177,17 @@ function update() {
 
 function launchBaddie() {
 
-      // Create baddie
+    // Create baddie
     baddie = game.add.sprite(game.world.width/2 - 80, 0, 'baddie')
     game.physics.arcade.enable(baddie);
 
-    baddie.body.gravity.y = 500;
+    baddie.body.gravity.y = 5000;
     baddie.body.bounce.y = 0.08;
     baddie.body.bounce.x = 1;
     baddie.body.collideWorldBounds = true;
 
     baddie.animations.add('left', [0, 1], 4, true);
     baddie.animations.add('right', [2, 3], 4, true);
-
-    baddie.body.velocity.x = -50;
-    baddie.animations.play('left');
 
 }
 
@@ -210,17 +208,8 @@ function checkLives(player, baddie) {
     playerLives--;
     livesText.text = 'LIVES: ' + playerLives;
     resetPlayer(player);
-    switchDirection(baddie);
   } else {
     killPlayer(player);
-  }
-}
-
-function switchDirection(baddie) {
-  if(baddie.body.velocity.x > 0) {
-    baddie.body.velocity.x = -50;
-  } else {
-    baddie.body.velocity.x = 50;
   }
 }
 
@@ -228,7 +217,6 @@ function resetPlayer(player) {
 
   player.x = 32;
   player.y = 150;
-
 
 }
 
